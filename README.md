@@ -6,6 +6,8 @@
 
 APIComparer is an interactive web tool designed to make API response comparison effortless. It provides developers and testers with an intuitive platform to compare responses from two different APIs, helping identify discrepancies and ensuring consistent data across services.
 
+Demo: https://sanjay-yadav-cs.github.io/APIComparer/
+
 ---
 
 ## Description
