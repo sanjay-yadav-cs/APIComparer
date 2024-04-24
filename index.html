@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Comparison</title>
+    <link href="libs/jsonTree/jsonTree.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .form-control {
+            display: inline-block;
+            /* width: 100%; */
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        .form-control:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+        }
+
+        #results {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .difference {
+            color: red;
+        }
+
+        .response {
+            flex: 1;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            max-height: 80vh;
+            overflow-y: scroll;
+            border: 1px solid;
+            padding: 10px;
+            background-color: #08080b;
+            color: white;
+        }
+
+        .difference-container {
+            margin-top: 20px;
+            flex-basis: 100%;
+            text-align: center;
+        }
+
+        .difference-item {
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .checkmark,
+        .cross {
+            font-size: 24px;
+            margin-right: 10px;
+            display: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 34px;
+            border: 1px solid;
+            border-radius: 50%;
+            height: 50px;
+            width: 50px;
+            color: white;
+        }
+
+        .green {
+            background-color: green;
+            border-color: green
+        }
+
+        .red {
+            background-color: red;
+            border-color: red;
+        }
+
+        @media (max-width: 768px) {
+            .response {
+                flex-basis: 100%;
+                margin-right: 0;
+            }
+        }
+
+        .api1 {
+            color: blue;
+        }
+
+        .api2 {
+            color: rgb(224, 0, 90);
+        }
+
+        .response pre {
+            white-space: pre-wrap;
+        }
+
+        button {
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: .25rem;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .mb-10{
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Comparison</h1>
+    <input class="form-control" type="text" id="baseUrl1" placeholder="Enter Base URL 1">
+    <input class="form-control" type="text" id="baseUrl2" placeholder="Enter Base URL 2">
+    <button onclick="saveBaseURL()">Save Base URL</button>
+    <br><br>
+    <select class="form-control" id="httpMethod">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+    </select>
+
+    <label for="apiUrl1">API URL 1:</label>
+    <input class="form-control" type="text" id="apiUrl1" placeholder="Enter API URL 1">
+
+    <label for="apiUrl2">API URL 2:</label>
+    <input class="form-control" type="text" id="apiUrl2" placeholder="Enter API URL 2">
+
+    <br><br>
+    <div style="display: flex;">
+        <div>
+            <label for="body" class="mb-10">Headers:</label><br>
+            <textarea class="form-control" id="headers" rows="4"
+                placeholder='{"Authorization": "Bearer token"}'></textarea>
+        </div>
+        <div style="margin-left: 10px;">
+            <label class="mb-10" for="body">Form Body:</label><br>
+            <textarea class="form-control" id="body" rows="4" placeholder='{"key": "value"}'></textarea>
+        </div>
+    </div>
+    <button onclick="compareAPIs()">Compare APIs</button>
+
+    <!-- <button onclick="compareAPIs()">Compare APIs</button> -->
+    <div class="loader" id="loader"></div>
+
+    <br>
+    <div style="text-align: center; margin-top: 20px;margin-bottom: 10px;">
+        <div class="checkmark" id="checkmark" style="display:none;">✓</div>
+        <div class="cross" id="cross" style="display:none;">✗</div>
+    </div>
+
+
+    <div id="keydiff"></div>
+
+    <div class="difference-container" id="differenceContainer">
+        <h2>Differences (WinMerge Style)</h2>
+        <div id="winMergeDifferences"></div>
+    </div>
+
+
+    <div id="results"></div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedBaseUrl1 = getBaseUrlFromLocalStorage('baseUrl1');
+            const storedBaseUrl2 = getBaseUrlFromLocalStorage('baseUrl2');
+
+            // If base URLs exist in local storage, set them to the input fields
+            if (storedBaseUrl1) {
+                document.getElementById('baseUrl1').value = storedBaseUrl1;
+            }
+
+            if (storedBaseUrl2) {
+                document.getElementById('baseUrl2').value = storedBaseUrl2;
+            }
+        });
+
+        const apiUrl1Input = document.getElementById('apiUrl1');
+        const apiUrl2Input = document.getElementById('apiUrl2');
+
+        apiUrl1Input.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                compareAPIs();
+            }
+        });
+
+        apiUrl2Input.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                compareAPIs();
+            }
+        });
+
+        function setBaseUrlToLocalStorage(baseUrlKey, baseUrlValue) {
+            if (baseUrlValue.trim() !== '') {
+                localStorage.setItem(baseUrlKey, baseUrlValue);
+            } else {
+                localStorage.removeItem(baseUrlKey);
+            }
+        }
+
+        function saveBaseURL() {
+            const baseUrl1 = document.getElementById('baseUrl1').value;
+            const baseUrl2 = document.getElementById('baseUrl2').value;
+
+            // Set base URLs to local storage
+            setBaseUrlToLocalStorage('baseUrl1', baseUrl1);
+            setBaseUrlToLocalStorage('baseUrl2', baseUrl2);
+        }
+
+        function getBaseUrlFromLocalStorage(baseUrlKey) {
+            return localStorage.getItem(baseUrlKey) || '';
+        }
+
+        function getHeadersFromString(headersString) {
+            try {
+                return JSON.parse(headersString);
+            } catch (error) {
+                return {};
+            }
+        }
+
+        async function fetchData(url, method, headers, body) {
+            const response = await fetch(url, {
+                method: method,
+                headers: headers,
+                body: JSON.parse(body)
+            });
+            const data = await response.json();
+            return data;
+        }
+
+        async function compareAPIs() {
+            const apiUrl1 = document.getElementById('apiUrl1').value;
+            const apiUrl2 = document.getElementById('apiUrl2').value;
+            const httpMethod = document.getElementById('httpMethod').value;
+            const headersString = document.getElementById('headers').value;
+            let bodyString = document.getElementById('body').value;
+            const baseUrl1 = document.getElementById('baseUrl1').value;
+            const baseUrl2 = document.getElementById('baseUrl2').value;
+
+            // Set base URLs to local storage
+            saveBaseURL();
+
+            const fullApiUrl1 = baseUrl1.trim() !== '' ? `${baseUrl1}/${apiUrl1}` : apiUrl1;
+            const fullApiUrl2 = baseUrl2.trim() !== '' ? `${baseUrl2}/${apiUrl2}` : apiUrl2;
+
+            const loader = document.getElementById('loader');
+            const checkmark = document.getElementById('checkmark');
+            const cross = document.getElementById('cross');
+
+            loader.style.display = 'block';
+            checkmark.style.display = 'none';
+            cross.style.display = 'none';
+
+            try {
+                const headers = getHeadersFromString(headersString);
+                headers['Content-Type'] = 'application/json';
+                let fetchOptions = {
+                    method: httpMethod,
+                    headers: headers
+                };
+
+                // Add body for POST and PUT methods
+                if (httpMethod === 'POST' || httpMethod === 'PUT') {
+                    fetchOptions.body = bodyString;
+                }
+
+                const [data1, data2] = await Promise.all([
+                    fetch(fullApiUrl1, fetchOptions).then(response => response.json()),
+                    fetch(fullApiUrl2, fetchOptions).then(response => response.json())
+                ]);
+
+
+                const prettyData1 = JSON.stringify(data1, null, 2);
+                const prettyData2 = JSON.stringify(data2, null, 2);
+
+                const keys1 = Object.keys(data1);
+                const keys2 = Object.keys(data2);
+
+                let differences = [];
+                let winMergeDifferences = [];
+
+                keys1.forEach(key => {
+                    if (!keys2.includes(key)) {
+                        differences.push({ diff: `Key '${key}' is missing in API 2`, class: 'api1' });
+                    }
+                });
+
+                keys2.forEach(key => {
+                    if (!keys1.includes(key)) {
+                        differences.push({ diff: `Key '${key}' is missing in API 1`, class: 'api2' });
+                    }
+                });
+
+                if (differences.length === 0) {
+                    checkmark.style.display = 'inline-block';
+                    checkmark.classList.add('green');
+                } else {
+                    cross.style.display = 'inline-block';
+                    cross.classList.add('red');
+                }
+
+                if (Array.isArray(data1) && !Array.isArray(data2)) {
+                    winMergeDifferences.push('API 1 is a list, API 2 is a single object');
+                } else if (!Array.isArray(data1) && Array.isArray(data2)) {
+                    winMergeDifferences.push('API 1 is a single object, API 2 is a list');
+                }
+
+                const keyDifferenceNote = 'Note: Differences are based on keys (structure), not values.';
+
+                const resultHTML = `
+                    <div class="response">
+                        <h2>API Response 1</h2>
+                        <pre>${prettyData1}</pre>
+                    </div>
+                    <div class="response">
+                        <h2>API Response 2</h2>
+                        <pre>${prettyData2}</pre>
+                    </div>
+                `;
+
+                document.getElementById('results').innerHTML = resultHTML;
+
+                let keydiff = document.getElementById('keydiff');
+                keydiff.innerHTML = '';
+                if (differences.length > 0) {
+                    keydiff.innerHTML += '<h3>Differences</h3>' + differences.map(diff => `<span class="difference ${diff.class}">${diff.diff}</span>`).join('<br>');
+                }
+
+                if (winMergeDifferences.length > 0) {
+                    document.getElementById('winMergeDifferences').innerHTML = `<p>${keyDifferenceNote}</p>` + winMergeDifferences.map(diff => `<div class="difference-item">${diff}</div>`).join('');
+                } else {
+                    document.getElementById('winMergeDifferences').innerHTML = keyDifferenceNote + '<br>No structure differences found.';
+                }
+
+                loader.style.display = 'none';
+
+            } catch (error) {
+                document.getElementById('results').innerHTML = 'Error fetching data.'+error;
+                loader.style.display = 'none';
+            }
+        }
+        
+    </script>
+</body>
+
+</html>
