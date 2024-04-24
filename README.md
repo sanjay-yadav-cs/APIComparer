@@ -1,6 +1,6 @@
 # APIComparer
 
-![APIComparer Logo](https://your-website.com/path/to/logo.png)
+![image](https://github.com/sanjay-yadav-cs/APIComparer/assets/104247091/835b8bab-ece6-45ed-bd52-d964c3a832ba)
 
 ## About APIComparer
 
@@ -11,6 +11,13 @@ APIComparer is an interactive web tool designed to make API response comparison 
 ## Description
 
 APIComparer offers a seamless experience to fetch, analyze, and display API responses side-by-side. With support for various HTTP methods, customizable requests, and base URL management, APIComparer streamlines the API testing process, making it easier than ever to ensure data consistency and integrity.
+
+---
+
+## Screenshot
+
+![screencapture-sanjay-yadav-cs-github-io-APIComparer-2024-04-25-00_40_13](https://github.com/sanjay-yadav-cs/APIComparer/assets/104247091/97d0d2db-aefd-48fa-b75b-397f3e928086)
+![image](https://github.com/sanjay-yadav-cs/APIComparer/assets/104247091/b887222c-4832-4a8f-b020-1122576f5f40)
 
 ---
 
@@ -47,11 +54,6 @@ APIComparer offers a seamless experience to fetch, analyze, and display API resp
 5. Input JSON Body: Provide JSON data for the request body.
 6. Compare APIs: Click the "Compare APIs" button to fetch and display the responses side by side.
 
----
-
-## Contributing
-
-We welcome contributions to improve and expand APIComparer. If you're interested in contributing, please refer to the CONTRIBUTING.md file for guidelines on how to contribute to the project.
 
 ---
 
